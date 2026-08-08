@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Cabecera de factura. Cliente y NIT viven aquí mismo (texto libre),
- * no hay relación con la tabla estudiante.
+ * Cabecera de factura. Cliente y NIT viven aquí mismo
  */
 public class Factura {
 
@@ -79,8 +78,7 @@ public class Factura {
     }
 
     /**
-     * Suma los subtotales de cada línea. Se llama antes de guardar/actualizar,
-     * nunca se calcula en Postgres (así lo pediste).
+     * Suma los subtotales de cada línea. Se llama antes de guardar/actualizar
      */
     public void calcularTotal() {
         BigDecimal suma = BigDecimal.ZERO;

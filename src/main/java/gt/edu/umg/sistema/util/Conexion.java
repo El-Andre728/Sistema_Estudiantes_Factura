@@ -7,8 +7,6 @@ import java.sql.SQLException;
 /**
  * Clase única de conexión a PostgreSQL. Ningún DAO abre su propia conexión;
  * todos piden la misma instancia a través de getConexion().
- *
- * AJUSTA estas tres constantes a tu entorno antes de correr el proyecto.
  */
 public class Conexion {
 

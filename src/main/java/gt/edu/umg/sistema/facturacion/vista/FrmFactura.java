@@ -22,12 +22,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Esta clase SÍ tiene FrmFactura.form al lado. Ábrela en NetBeans y entra
- * directo en modo Design, ya armada. El bloque initComponents() de abajo
- * es protegido (GEN-BEGIN/GEN-END) — NetBeans lo regenera solo cuando
- * guardas desde el diseñador. No lo edites a mano.
- */
 public class FrmFactura extends javax.swing.JFrame {
 
     private static final Logger logger = Logger.getLogger(FrmFactura.class.getName());
@@ -38,7 +32,7 @@ public class FrmFactura extends javax.swing.JFrame {
     public FrmFactura() {
         initComponents();
         // DISPOSE_ON_CLOSE en vez de EXIT_ON_CLOSE: si esta ventana se abre
-        // desde el menú principal, cerrarla no debe matar toda la aplicación.
+        // desde el menú principal, cerrarla regresa al menú principal.
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         controller = new FacturaController();
         configurarTablaDetalle();
@@ -47,97 +41,190 @@ public class FrmFactura extends javax.swing.JFrame {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    @SuppressWarnings("unchecked")
     private void initComponents() {
-        lblNumero = new JLabel("No. Factura");
-        txtNumero = new JTextField();
+
+        lblNumero = new javax.swing.JLabel();
+        txtNumero = new javax.swing.JTextField();
+        lblFecha = new javax.swing.JLabel();
+        txtFecha = new javax.swing.JTextField();
+        lblCliente = new javax.swing.JLabel();
+        txtCliente = new javax.swing.JTextField();
+        lblNit = new javax.swing.JLabel();
+        txtNit = new javax.swing.JTextField();
+        btnNueva = new javax.swing.JButton();
+        scrollDetalle = new javax.swing.JScrollPane();
+        tblDetalle = new javax.swing.JTable();
+        btnAgregarLinea = new javax.swing.JButton();
+        btnEliminarLinea = new javax.swing.JButton();
+        lblTotal = new javax.swing.JLabel();
+        txtTotal = new javax.swing.JTextField();
+        btnGrabar = new javax.swing.JButton();
+        btnActualizar = new javax.swing.JButton();
+        btnEliminar = new javax.swing.JButton();
+        lblListado = new javax.swing.JLabel();
+        scrollFacturas = new javax.swing.JScrollPane();
+        tblFacturas = new javax.swing.JTable();
+        btnCargar = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Facturación");
+
+        lblNumero.setText("No. Factura");
+
         txtNumero.setEditable(false);
 
-        lblFecha = new JLabel("Fecha");
-        txtFecha = new JTextField();
+        lblFecha.setText("Fecha");
 
-        lblCliente = new JLabel("Cliente");
-        txtCliente = new JTextField();
+        lblCliente.setText("Cliente");
 
-        lblNit = new JLabel("NIT");
-        txtNit = new JTextField();
+        lblNit.setText("NIT");
 
-        btnNueva = new JButton("Nueva");
+        btnNueva.setText("Nueva");
         btnNueva.addActionListener(this::btnNuevaActionPerformed);
 
-        tblDetalle = new JTable();
-        scrollDetalle = new JScrollPane(tblDetalle);
+        tblDetalle.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Descripción", "Cantidad", "Precio unitario", "Subtotal"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                true, true, true, false
+            };
 
-        btnAgregarLinea = new JButton("Agregar línea");
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        scrollDetalle.setViewportView(tblDetalle);
+
+        btnAgregarLinea.setText("Agregar línea");
         btnAgregarLinea.addActionListener(this::btnAgregarLineaActionPerformed);
 
-        btnEliminarLinea = new JButton("Eliminar línea");
+        btnEliminarLinea.setText("Eliminar línea");
         btnEliminarLinea.addActionListener(this::btnEliminarLineaActionPerformed);
 
-        lblTotal = new JLabel("Total");
-        txtTotal = new JTextField();
+        lblTotal.setText("Total");
+
         txtTotal.setEditable(false);
 
-        btnGrabar = new JButton("Grabar factura");
+        btnGrabar.setText("Grabar factura");
         btnGrabar.addActionListener(this::btnGrabarActionPerformed);
 
-        btnActualizar = new JButton("Actualizar");
+        btnActualizar.setText("Actualizar");
         btnActualizar.addActionListener(this::btnActualizarActionPerformed);
 
-        btnEliminar = new JButton("Eliminar factura");
+        btnEliminar.setText("Eliminar factura");
         btnEliminar.addActionListener(this::btnEliminarActionPerformed);
 
-        lblListado = new JLabel("Facturas guardadas");
-        tblFacturas = new JTable();
-        scrollFacturas = new JScrollPane(tblFacturas);
+        lblListado.setText("Facturas guardadas");
 
-        btnCargar = new JButton("Cargar seleccionada");
+        tblFacturas.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "ID", "Número", "Fecha", "Cliente", "Total"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        scrollFacturas.setViewportView(tblFacturas);
+
+        btnCargar.setText("Cargar seleccionada");
         btnCargar.addActionListener(this::btnCargarActionPerformed);
 
-        setTitle("Facturación");
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        GroupLayout layout = new GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);
-
-        layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(lblNumero).addComponent(txtNumero, 100, 100, 100)
-                .addComponent(lblFecha).addComponent(txtFecha, 100, 100, 100)
-                .addComponent(lblCliente).addComponent(txtCliente, 200, 200, GroupLayout.PREFERRED_SIZE)
-                .addComponent(lblNit).addComponent(txtNit, 120, 120, 120)
-                .addComponent(btnNueva))
-            .addComponent(scrollDetalle, GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(btnAgregarLinea)
-                .addComponent(btnEliminarLinea)
-                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblTotal).addComponent(txtTotal, 120, 120, 120))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(btnGrabar).addComponent(btnActualizar).addComponent(btnEliminar))
-            .addComponent(lblListado)
-            .addComponent(scrollFacturas, GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
-            .addComponent(btnCargar)
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblNumero)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtNumero, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblFecha)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblCliente)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblNit)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtNit, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnNueva))
+                    .addComponent(scrollDetalle, javax.swing.GroupLayout.PREFERRED_SIZE, 680, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnAgregarLinea)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnEliminarLinea)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lblTotal)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnGrabar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnActualizar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnEliminar))
+                    .addComponent(lblListado)
+                    .addComponent(scrollFacturas, javax.swing.GroupLayout.PREFERRED_SIZE, 680, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCargar))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
-
-        layout.setVerticalGroup(layout.createSequentialGroup()
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(lblNumero).addComponent(txtNumero)
-                .addComponent(lblFecha).addComponent(txtFecha)
-                .addComponent(lblCliente).addComponent(txtCliente)
-                .addComponent(lblNit).addComponent(txtNit)
-                .addComponent(btnNueva))
-            .addComponent(scrollDetalle, 180, 180, 220)
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(btnAgregarLinea).addComponent(btnEliminarLinea)
-                .addComponent(lblTotal).addComponent(txtTotal))
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(btnGrabar).addComponent(btnActualizar).addComponent(btnEliminar))
-            .addComponent(lblListado)
-            .addComponent(scrollFacturas, 150, 150, 180)
-            .addComponent(btnCargar)
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblNumero)
+                    .addComponent(txtNumero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblFecha)
+                    .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblCliente)
+                    .addComponent(txtCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblNit)
+                    .addComponent(txtNit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnNueva))
+                .addGap(18, 18, 18)
+                .addComponent(scrollDetalle, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAgregarLinea)
+                    .addComponent(btnEliminarLinea)
+                    .addComponent(lblTotal)
+                    .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnGrabar)
+                    .addComponent(btnActualizar)
+                    .addComponent(btnEliminar))
+                .addGap(18, 18, 18)
+                .addComponent(lblListado)
+                .addGap(18, 18, 18)
+                .addComponent(scrollFacturas, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnCargar)
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         pack();
@@ -178,7 +265,7 @@ public class FrmFactura extends javax.swing.JFrame {
             recalcularTotal();
         } catch (NumberFormatException | NullPointerException ex) {
             // El usuario todavía está escribiendo (campo vacío o a medio
-            // completar) — no hay nada que calcular todavía, se ignora.
+            // completar)no hay nada que calcular todavía, se ignora.
         }
     }
 
@@ -219,7 +306,7 @@ public class FrmFactura extends javax.swing.JFrame {
     private void btnGrabarActionPerformed(ActionEvent evt) {
         Factura factura = construirFacturaDesdeFormulario();
         if (factura == null) {
-            return; // construirFacturaDesdeFormulario ya mostró el error puntual
+            return; 
         }
         try {
             controller.guardar(factura);
@@ -344,7 +431,7 @@ public class FrmFactura extends javax.swing.JFrame {
 
     private LocalDate parsearFecha(String texto) {
         try {
-            return LocalDate.parse(texto); // espera formato ISO: yyyy-MM-dd
+            return LocalDate.parse(texto); // espera formato: yyyy/MM/dd
         } catch (RuntimeException ex) {
             return LocalDate.now();
         }
@@ -406,27 +493,27 @@ public class FrmFactura extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private JLabel lblNumero;
-    private JTextField txtNumero;
-    private JLabel lblFecha;
-    private JTextField txtFecha;
-    private JLabel lblCliente;
-    private JTextField txtCliente;
-    private JLabel lblNit;
-    private JTextField txtNit;
-    private JButton btnNueva;
-    private JTable tblDetalle;
-    private JScrollPane scrollDetalle;
-    private JButton btnAgregarLinea;
-    private JButton btnEliminarLinea;
-    private JLabel lblTotal;
-    private JTextField txtTotal;
-    private JButton btnGrabar;
-    private JButton btnActualizar;
-    private JButton btnEliminar;
-    private JLabel lblListado;
-    private JTable tblFacturas;
-    private JScrollPane scrollFacturas;
-    private JButton btnCargar;
+    private javax.swing.JButton btnActualizar;
+    private javax.swing.JButton btnAgregarLinea;
+    private javax.swing.JButton btnCargar;
+    private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnEliminarLinea;
+    private javax.swing.JButton btnGrabar;
+    private javax.swing.JButton btnNueva;
+    private javax.swing.JLabel lblCliente;
+    private javax.swing.JLabel lblFecha;
+    private javax.swing.JLabel lblListado;
+    private javax.swing.JLabel lblNit;
+    private javax.swing.JLabel lblNumero;
+    private javax.swing.JLabel lblTotal;
+    private javax.swing.JScrollPane scrollDetalle;
+    private javax.swing.JScrollPane scrollFacturas;
+    private javax.swing.JTable tblDetalle;
+    private javax.swing.JTable tblFacturas;
+    private javax.swing.JTextField txtCliente;
+    private javax.swing.JTextField txtFecha;
+    private javax.swing.JTextField txtNit;
+    private javax.swing.JTextField txtNumero;
+    private javax.swing.JTextField txtTotal;
     // End of variables declaration//GEN-END:variables
 }
