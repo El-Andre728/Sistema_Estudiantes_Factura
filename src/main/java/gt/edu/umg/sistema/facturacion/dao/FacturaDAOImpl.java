@@ -214,13 +214,6 @@ public class FacturaDAOImpl implements FacturaDAO {
         return factura;
     }
 
-    /**
-     * OPCIÓN A elegida: MAX(id)+1 dentro de la misma transacción.
-     * No es atómico bajo concurrencia real (dos usuarios grabando al mismo
-     * milisegundo podrían chocar). Para un proyecto de un solo usuario está
-     * bien. Si algún día hay multiusuario, cambiar esto por una SEQUENCE
-     * de Postgres (nextval) — eso sí es atómico a nivel de motor.
-     */
     private String generarNumeroFactura(Connection con) throws SQLException {
         String sql = "SELECT COALESCE(MAX(id), 0) + 1 AS siguiente FROM factura";
         try (Statement st = con.createStatement();
