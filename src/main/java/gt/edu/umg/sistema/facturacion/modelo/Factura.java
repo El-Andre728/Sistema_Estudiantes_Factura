@@ -1,90 +1,88 @@
 package gt.edu.umg.sistema.facturacion.modelo;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Cabecera de factura. Cliente y NIT viven aquí mismo
+ *
+ * @author garci
  */
-public class Factura {
 
-    private int id;
-    private String numeroFactura;
+public class Factura{
+    private int idFactura;
     private LocalDate fecha;
-    private String clienteNombre;
-    private String clienteNit;
-    private BigDecimal total = BigDecimal.ZERO;
-    private List<DetalleFactura> detalles = new ArrayList<>();
-
-    public Factura() {
+    private Cliente cliente;
+    private String numeroFactura;
+    private String nombreFactura;
+    private List<DetalleFactura> detalles;
+    
+    //metodos y funciones
+    public void agregarDetalle(DetalleFactura detalle){
+        detalles.add(detalle);
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNumeroFactura() {
-        return numeroFactura;
-    }
-
-    public void setNumeroFactura(String numeroFactura) {
-        this.numeroFactura = numeroFactura;
-    }
-
-    public LocalDate getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
-    }
-
-    public String getClienteNombre() {
-        return clienteNombre;
-    }
-
-    public void setClienteNombre(String clienteNombre) {
-        this.clienteNombre = clienteNombre;
-    }
-
-    public String getClienteNit() {
-        return clienteNit;
-    }
-
-    public void setClienteNit(String clienteNit) {
-        this.clienteNit = clienteNit;
-    }
-
-    public BigDecimal getTotal() {
+    public double calcularTotal(){
+        double total = 0;
+        for(DetalleFactura d : detalles){
+            total += d.calcularSubtotal();
+        }
         return total;
     }
-
-    public void setTotal(BigDecimal total) {
-        this.total = total;
+    
+    //constructores
+    public Factura(){
+        this.detalles = new ArrayList<>();
     }
-
-    public List<DetalleFactura> getDetalles() {
+    
+    public Factura(int idFactura, LocalDate fecha, Cliente cliente,String numeroFactura,String nombreFactura, List<DetalleFactura> detalles){
+     this.idFactura = idFactura;
+     this.fecha = fecha;
+     this.cliente = cliente;
+     this.numeroFactura = numeroFactura;
+     this.nombreFactura = nombreFactura;
+     this.detalles = detalles;        
+    }
+    
+    //getters y setters
+    public int getIdFactura(){
+        return idFactura;
+    }
+    public void setIdFactura(int idFactura){
+        this.idFactura = idFactura;
+    }
+    
+    public LocalDate getFecha(){
+        return fecha;
+    }
+    
+    public void setFecha(LocalDate fecha){
+        this.fecha = fecha;
+    }
+    
+    public Cliente getCliente(){
+        return cliente;
+    }
+    public void setCliente(Cliente cliente){
+        this.cliente = cliente;
+    }
+    
+    public String getNumeroFactura(){
+        return numeroFactura;
+    }
+    public void setNumeroFactura(String numeroFactura){
+        this.numeroFactura = numeroFactura;
+    }
+    public String getNombreFactura(){
+        return nombreFactura;
+    }
+    public void setNombreFactura(String nombreFactura){
+        this.nombreFactura = nombreFactura;
+    }
+ 
+    public List<DetalleFactura> getDetalles(){
         return detalles;
     }
-
-    public void setDetalles(List<DetalleFactura> detalles) {
-        this.detalles = detalles;
-    }
-
-    /**
-     * Suma los subtotales de cada línea. Se llama antes de guardar/actualizar
-     */
-    public void calcularTotal() {
-        BigDecimal suma = BigDecimal.ZERO;
-        for (DetalleFactura d : detalles) {
-            suma = suma.add(d.getSubtotal());
-        }
-        this.total = suma;
+    public void setDetalles(List<DetalleFactura> detalles){
+        this.detalles = new ArrayList<>();
     }
 }

@@ -1,7 +1,10 @@
 package gt.edu.umg.sistema;
 
 import gt.edu.umg.sistema.estudiantes.vista.FrmEstudiante;
+import gt.edu.umg.sistema.facturacion.vista.FrmCliente;
+import gt.edu.umg.sistema.facturacion.vista.FrmEmpleado;
 import gt.edu.umg.sistema.facturacion.vista.FrmFactura;
+import gt.edu.umg.sistema.facturacion.vista.FrmProducto;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -24,9 +27,16 @@ public class SistemaPrincipal extends JFrame {
         JLabel titulo = new JLabel("Selecciona un módulo", SwingConstants.CENTER);
         JButton btnEstudiantes = new JButton("Estudiantes");
         JButton btnFactura = new JButton("Factura");
+        JButton btnCliente = new JButton("Cliente");
+        JButton btnEmpleado = new JButton("Empleado");
+        JButton btnProducto = new JButton("Producto");
+
 
         btnEstudiantes.addActionListener(this::abrirEstudiantes);
         btnFactura.addActionListener(this::abrirFactura);
+        btnCliente.addActionListener(this::abrirCliente);
+        btnEmpleado.addActionListener(this::abrirEmpleado);
+        btnProducto.addActionListener(this::abrirProducto);
 
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -37,11 +47,18 @@ public class SistemaPrincipal extends JFrame {
             .addComponent(titulo, 250, 250, 250)
             .addComponent(btnEstudiantes, 250, 250, 250)
             .addComponent(btnFactura, 250, 250, 250)
+            .addComponent(btnCliente, 250, 250, 250) 
+            .addComponent(btnEmpleado, 250, 250, 250) 
+            .addComponent(btnProducto, 250, 250, 250) 
         );
+        
         layout.setVerticalGroup(layout.createSequentialGroup()
             .addComponent(titulo)
             .addComponent(btnEstudiantes)
             .addComponent(btnFactura)
+            .addComponent(btnCliente) 
+            .addComponent(btnEmpleado) 
+            .addComponent(btnProducto) 
         );
 
         pack();
@@ -59,7 +76,22 @@ public class SistemaPrincipal extends JFrame {
         frm.setLocationRelativeTo(null);
         frm.setVisible(true);
     }
-
+    
+    private void abrirCliente(ActionEvent evt) {
+        FrmCliente frm = new FrmCliente();
+        frm.setLocationRelativeTo(null);
+        frm.setVisible(true);
+    }
+    private void abrirEmpleado(ActionEvent evt) {
+        FrmEmpleado frm = new FrmEmpleado();
+        frm.setLocationRelativeTo(null);
+        frm.setVisible(true);
+    }
+    private void abrirProducto(ActionEvent evt) {
+        FrmProducto frm = new FrmProducto();
+        frm.setLocationRelativeTo(null);
+        frm.setVisible(true);
+    }
     public static void main(String[] args) {
         java.awt.EventQueue.invokeLater(() -> {
             SistemaPrincipal menu = new SistemaPrincipal();

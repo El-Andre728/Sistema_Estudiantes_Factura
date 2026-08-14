@@ -15,15 +15,13 @@ import java.util.List;
 public class FacturaDAOImpl implements FacturaDAO {
 
     private static final String SQL_INSERT_FACTURA =
-            "INSERT INTO factura (numero_factura, fecha, cliente_nombre, cliente_nit, total) "
-            + "VALUES (?, ?, ?, ?, ?)";
-
+        "INSERT INTO factura (numero_factura, fecha, id_cliente, total) VALUES (?, ?, ?, ?)";
+    
     private static final String SQL_INSERT_DETALLE =
-            "INSERT INTO detalle_factura (factura_id, descripcion, cantidad, precio_unitario, subtotal) "
-            + "VALUES (?, ?, ?, ?, ?)";
-
+        "INSERT INTO detalle_factura (factura_id, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
+    
     private static final String SQL_UPDATE_FACTURA =
-            "UPDATE factura SET cliente_nombre = ?, cliente_nit = ?, total = ? WHERE id = ?";
+        "UPDATE factura SET id_cliente = ?, total = ? WHERE id = ?";
 
     private static final String SQL_DELETE_DETALLE_POR_FACTURA =
             "DELETE FROM detalle_factura WHERE factura_id = ?";
@@ -32,20 +30,14 @@ public class FacturaDAOImpl implements FacturaDAO {
             "DELETE FROM factura WHERE id = ?";
 
     private static final String SQL_SELECT_FACTURAS =
-            "SELECT id, numero_factura, fecha, cliente_nombre, cliente_nit, total FROM factura ORDER BY id";
-
+            "SELECT id, numero_factura, fecha, id_cliente, total FROM factura ORDER BY id";
     private static final String SQL_SELECT_FACTURA_POR_ID =
-            "SELECT id, numero_factura, fecha, cliente_nombre, cliente_nit, total FROM factura WHERE id = ?";
-
+            "SELECT id, numero_factura, fecha, id_cliente, total FROM factura WHERE id = ?";
+    
     private static final String SQL_SELECT_DETALLE_POR_FACTURA =
-            "SELECT id, factura_id, descripcion, cantidad, precio_unitario, subtotal "
-            + "FROM detalle_factura WHERE factura_id = ? ORDER BY id";
+        "SELECT id, factura_id, id_producto, cantidad, precio_unitario, subtotal "
+        + "FROM detalle_factura WHERE factura_id = ? ORDER BY id";
 
-    /**
-     * Guarda cabecera + todas sus líneas en UNA transacción. Si algo falla
-     * a la mitad (ej. una línea con dato corrupto), rollback: no queda
-     * factura huérfana sin detalle ni detalle sin factura.
-     */
     @Override
     public void guardar(Factura factura) {
         Connection con;
@@ -56,35 +48,32 @@ public class FacturaDAOImpl implements FacturaDAO {
         }
 
         try {
-            con.setAutoCommit(false); // arranca la transacción: nada se guarda hasta commit()
+            con.setAutoCommit(false); 
 
             factura.setNumeroFactura(generarNumeroFactura(con));
 
             try (PreparedStatement ps = con.prepareStatement(SQL_INSERT_FACTURA, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, factura.getNumeroFactura());
                 ps.setDate(2, java.sql.Date.valueOf(factura.getFecha()));
-                ps.setString(3, factura.getClienteNombre());
-                ps.setString(4, factura.getClienteNit());
-                ps.setBigDecimal(5, factura.getTotal());
+                ps.setInt(3, factura.getCliente().getId());
+                ps.setDouble(4, factura.calcularTotal());
                 ps.executeUpdate();
 
-                // RETURN_GENERATED_KEYS + getGeneratedKeys(): así recupero el id
-                // que Postgres le asignó al SERIAL, sin hacer un SELECT aparte.
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
-                        factura.setId(rs.getInt(1));
+                        factura.setIdFactura(rs.getInt(1));
                     }
                 }
             }
 
             try (PreparedStatement ps = con.prepareStatement(SQL_INSERT_DETALLE)) {
                 for (DetalleFactura d : factura.getDetalles()) {
-                    ps.setInt(1, factura.getId());
-                    ps.setString(2, d.getDescripcion());
+                    ps.setInt(1, factura.getIdFactura());
+                    ps.setInt(2, d.getProducto().getIdProducto());
                     ps.setInt(3, d.getCantidad());
-                    ps.setBigDecimal(4, d.getPrecioUnitario());
-                    ps.setBigDecimal(5, d.getSubtotal());
-                    ps.addBatch(); // agrupa los inserts de línea en un solo viaje a la DB
+                    ps.setDouble(4, d.getPrecioUnitario());
+                    ps.setDouble(5, d.calcularSubtotal());
+                    ps.addBatch(); 
                 }
                 ps.executeBatch();
             }
@@ -98,11 +87,6 @@ public class FacturaDAOImpl implements FacturaDAO {
         }
     }
 
-    /**
-     * Actualiza cabecera y reemplaza TODAS las líneas (borra las viejas,
-     * inserta las nuevas). Más simple y confiable que tratar de calcular
-     * cuáles líneas cambiaron, se borraron o son nuevas.
-     */
     @Override
     public void actualizar(Factura factura) {
         Connection con;
@@ -116,25 +100,24 @@ public class FacturaDAOImpl implements FacturaDAO {
             con.setAutoCommit(false);
 
             try (PreparedStatement ps = con.prepareStatement(SQL_UPDATE_FACTURA)) {
-                ps.setString(1, factura.getClienteNombre());
-                ps.setString(2, factura.getClienteNit());
-                ps.setBigDecimal(3, factura.getTotal());
-                ps.setInt(4, factura.getId());
+                ps.setInt(1, factura.getCliente().getId());
+                ps.setDouble(2, factura.calcularTotal());
+                ps.setInt(3, factura.getIdFactura());
                 ps.executeUpdate();
             }
 
             try (PreparedStatement ps = con.prepareStatement(SQL_DELETE_DETALLE_POR_FACTURA)) {
-                ps.setInt(1, factura.getId());
+                ps.setInt(1, factura.getIdFactura());
                 ps.executeUpdate();
             }
 
             try (PreparedStatement ps = con.prepareStatement(SQL_INSERT_DETALLE)) {
                 for (DetalleFactura d : factura.getDetalles()) {
-                    ps.setInt(1, factura.getId());
-                    ps.setString(2, d.getDescripcion());
+                    ps.setInt(1, factura.getIdFactura());
+                    ps.setInt(2, d.getProducto().getIdProducto());
                     ps.setInt(3, d.getCantidad());
-                    ps.setBigDecimal(4, d.getPrecioUnitario());
-                    ps.setBigDecimal(5, d.getSubtotal());
+                    ps.setDouble(4, d.getPrecioUnitario());
+                    ps.setDouble(5, d.calcularSubtotal());
                     ps.addBatch();
                 }
                 ps.executeBatch();
@@ -149,10 +132,6 @@ public class FacturaDAOImpl implements FacturaDAO {
         }
     }
 
-    /**
-     * ON DELETE CASCADE en el DDL ya borra el detalle solo, pero el borrado
-     * de una factura es una sola sentencia — no necesita transacción manual.
-     */
     @Override
     public void eliminar(int id) {
         try {
@@ -174,13 +153,26 @@ public class FacturaDAOImpl implements FacturaDAO {
             try (Statement st = con.createStatement();
                  ResultSet rs = st.executeQuery(SQL_SELECT_FACTURAS)) {
                 while (rs.next()) {
-                    facturas.add(mapearFactura(rs));
+                    Factura f = mapearFactura(rs);
+                    cargarDetalles(f, con);
+                    facturas.add(f);
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error al listar facturas.", e);
         }
         return facturas;
+    }
+    
+    private void cargarDetalles(Factura factura, Connection con) throws SQLException {
+        try (PreparedStatement ps = con.prepareStatement(SQL_SELECT_DETALLE_POR_FACTURA)) {
+            ps.setInt(1, factura.getIdFactura());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    factura.getDetalles().add(mapearDetalle(rs));
+                }
+            }
+        }
     }
 
     @Override
@@ -199,14 +191,7 @@ public class FacturaDAOImpl implements FacturaDAO {
             }
 
             if (factura != null) {
-                try (PreparedStatement ps = con.prepareStatement(SQL_SELECT_DETALLE_POR_FACTURA)) {
-                    ps.setInt(1, id);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        while (rs.next()) {
-                            factura.getDetalles().add(mapearDetalle(rs));
-                        }
-                    }
-                }
+                cargarDetalles(factura, con);
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error al buscar la factura.", e);
@@ -222,7 +207,7 @@ public class FacturaDAOImpl implements FacturaDAO {
             if (rs.next()) {
                 siguiente = rs.getInt("siguiente");
             }
-            return String.format("FAC-%04d", siguiente); // %04d = rellena con ceros a la izq hasta 4 dígitos
+            return String.format("FAC-%04d", siguiente); 
         }
     }
 
@@ -236,31 +221,28 @@ public class FacturaDAOImpl implements FacturaDAO {
 
     private void restaurarAutoCommit(Connection con) {
         try {
-            con.setAutoCommit(true); // deja la conexión lista para la próxima operación normal
+            con.setAutoCommit(true); 
         } catch (SQLException e) {
-            // No relanzo aquí: ya se resolvió o falló el commit/rollback antes de llegar a este punto.
+            
         }
     }
 
     private Factura mapearFactura(ResultSet rs) throws SQLException {
         Factura f = new Factura();
-        f.setId(rs.getInt("id"));
+        f.setIdFactura(rs.getInt("id"));
         f.setNumeroFactura(rs.getString("numero_factura"));
         f.setFecha(rs.getDate("fecha").toLocalDate());
-        f.setClienteNombre(rs.getString("cliente_nombre"));
-        f.setClienteNit(rs.getString("cliente_nit"));
-        f.setTotal(rs.getBigDecimal("total"));
+        ClienteDAO clienteDAO = new ClienteDAOImpl();
+        f.setCliente(clienteDAO.buscarPorId(rs.getInt("id_cliente")));
         return f;
     }
 
     private DetalleFactura mapearDetalle(ResultSet rs) throws SQLException {
         DetalleFactura d = new DetalleFactura();
-        d.setId(rs.getInt("id"));
-        d.setFacturaId(rs.getInt("factura_id"));
-        d.setDescripcion(rs.getString("descripcion"));
+        ProductoDAO productoDAO = new ProductoDAOImpl();
+        d.setProducto(productoDAO.buscarPorId(rs.getInt("id_producto")));
         d.setCantidad(rs.getInt("cantidad"));
-        d.setPrecioUnitario(rs.getBigDecimal("precio_unitario"));
-        d.setSubtotal(rs.getBigDecimal("subtotal"));
+        d.setPrecioUnitario(rs.getDouble("precio_unitario"));
         return d;
     }
 }

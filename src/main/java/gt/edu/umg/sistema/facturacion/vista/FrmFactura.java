@@ -1,18 +1,17 @@
 package gt.edu.umg.sistema.facturacion.vista;
 
 import gt.edu.umg.sistema.facturacion.controlador.FacturaController;
+import gt.edu.umg.sistema.facturacion.dao.ClienteDAO;
+import gt.edu.umg.sistema.facturacion.dao.ClienteDAOImpl;
+import gt.edu.umg.sistema.facturacion.dao.ProductoDAO;
+import gt.edu.umg.sistema.facturacion.dao.ProductoDAOImpl;
+import gt.edu.umg.sistema.facturacion.modelo.Cliente;
 import gt.edu.umg.sistema.facturacion.modelo.DetalleFactura;
 import gt.edu.umg.sistema.facturacion.modelo.Factura;
+import gt.edu.umg.sistema.facturacion.modelo.Producto;
 
-import javax.swing.GroupLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.LayoutStyle;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.ActionEvent;
@@ -244,7 +243,7 @@ public class FrmFactura extends javax.swing.JFrame {
         tblDetalle.setModel(modelo);
 
         // Cada vez que el usuario edita una celda de la tabla, este listener
-        // se dispara. Si tocó cantidad o precio, recalcula el subtotal de esa fila.
+        // se activa. Si tocó cantidad o precio, recalcula el subtotal de esa fila.
         modelo.addTableModelListener(e -> {
             int fila = e.getFirstRow();
             int columna = e.getColumn();
@@ -265,7 +264,7 @@ public class FrmFactura extends javax.swing.JFrame {
             recalcularTotal();
         } catch (NumberFormatException | NullPointerException ex) {
             // El usuario todavía está escribiendo (campo vacío o a medio
-            // completar)no hay nada que calcular todavía, se ignora.
+            // completar) no hay nada que calcular todavía, se ignora.
         }
     }
 
@@ -310,7 +309,7 @@ public class FrmFactura extends javax.swing.JFrame {
         }
         try {
             controller.guardar(factura);
-            idFacturaActual = factura.getId();
+            idFacturaActual = factura.getIdFactura();
             txtNumero.setText(factura.getNumeroFactura());
             JOptionPane.showMessageDialog(this, "Factura " + factura.getNumeroFactura() + " grabada.");
             refrescarListado();
@@ -330,7 +329,7 @@ public class FrmFactura extends javax.swing.JFrame {
         if (factura == null) {
             return;
         }
-        factura.setId(idFacturaActual);
+        factura.setIdFactura(idFacturaActual);
         try {
             controller.actualizar(factura);
             JOptionPane.showMessageDialog(this, "Factura actualizada.");
@@ -386,46 +385,61 @@ public class FrmFactura extends javax.swing.JFrame {
 
     /**
      * Lee los campos y la tabla de detalle y arma un objeto Factura.
-     * Devuelve null (y ya mostró el JOptionPane del error) si algo
-     * no es válido, así el botón que llamó esto sabe que debe abortar.
+     * Devuelve null si algo no es válido, así el botón que llamó esto sabe que debe abortar.
      */
     private Factura construirFacturaDesdeFormulario() {
-        String cliente = txtCliente.getText().trim();
-        if (cliente.isEmpty()) {
+        String nombreCliente = txtCliente.getText().trim();
+        if (nombreCliente.isEmpty()) {
             JOptionPane.showMessageDialog(this, "El nombre del cliente es obligatorio.");
             return null;
         }
-
         DefaultTableModel modelo = (DefaultTableModel) tblDetalle.getModel();
         if (modelo.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Agrega al menos una línea de detalle.");
             return null;
         }
 
+        ClienteDAO clienteDAO = new ClienteDAOImpl();
+        String nit = txtNit.getText().trim();
+        Cliente clienteObj = clienteDAO.buscarPorNit(nit);
+        if (clienteObj == null) {
+            clienteObj = new Cliente();
+            clienteObj.setNombre(nombreCliente);
+            clienteObj.setNit(nit);
+            clienteDAO.guardar(clienteObj);
+        }
+
         Factura factura = new Factura();
-        factura.setClienteNombre(cliente);
-        factura.setClienteNit(txtNit.getText().trim());
+        factura.setCliente(clienteObj);
         factura.setFecha(parsearFecha(txtFecha.getText().trim()));
 
+        ProductoDAO productoDAO = new ProductoDAOImpl();
         for (int i = 0; i < modelo.getRowCount(); i++) {
-            String descripcion = String.valueOf(modelo.getValueAt(i, 0)).trim();
-            if (descripcion.isEmpty()) {
+            String nombreProducto = String.valueOf(modelo.getValueAt(i, 0)).trim();
+            if (nombreProducto.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "La línea " + (i + 1) + " no tiene descripción.");
                 return null;
             }
             try {
+                int cantidad = Integer.parseInt(modelo.getValueAt(i, 1).toString().trim());
+                double precio = Double.parseDouble(modelo.getValueAt(i, 2).toString().trim());
+
+                Producto productoObj = new Producto();
+                productoObj.setNombre(nombreProducto);
+                productoObj.setPrecio(precio);
+                productoObj.setExistencia(cantidad);
+                productoDAO.guardar(productoObj);
+
                 DetalleFactura detalle = new DetalleFactura();
-                detalle.setDescripcion(descripcion);
-                detalle.setCantidad(Integer.parseInt(modelo.getValueAt(i, 1).toString().trim()));
-                detalle.setPrecioUnitario(new BigDecimal(modelo.getValueAt(i, 2).toString().trim()));
-                detalle.calcularSubtotal();
+                detalle.setProducto(productoObj);
+                detalle.setCantidad(cantidad);
+                detalle.setPrecioUnitario(precio);
                 factura.getDetalles().add(detalle);
             } catch (RuntimeException ex) {
                 JOptionPane.showMessageDialog(this, "Cantidad o precio inválido en la línea " + (i + 1) + ".");
                 return null;
             }
         }
-
         return factura;
     }
 
@@ -438,28 +452,29 @@ public class FrmFactura extends javax.swing.JFrame {
     }
 
     private void cargarFacturaEnFormulario(Factura factura) {
-        idFacturaActual = factura.getId();
+        idFacturaActual = factura.getIdFactura();
         txtNumero.setText(factura.getNumeroFactura());
         txtFecha.setText(factura.getFecha().toString());
-        txtCliente.setText(factura.getClienteNombre());
-        txtNit.setText(factura.getClienteNit());
-        txtTotal.setText(factura.getTotal().toPlainString());
+        Cliente cliente = factura.getCliente();
+        txtCliente.setText(cliente.getNombre());
+        txtNit.setText(cliente.getNit());
+        txtTotal.setText(String.format("%.2f",factura.calcularTotal()));
 
         DefaultTableModel modelo = (DefaultTableModel) tblDetalle.getModel();
         modelo.setRowCount(0);
         for (DetalleFactura d : factura.getDetalles()) {
             modelo.addRow(new Object[]{
-                d.getDescripcion(),
+                d.getProducto().getNombre(),
                 d.getCantidad(),
-                d.getPrecioUnitario().toPlainString(),
-                d.getSubtotal().toPlainString()
+                d.getPrecioUnitario(),
+                d.calcularSubtotal()
             });
         }
     }
 
     private void limpiarFormulario() {
         idFacturaActual = 0;
-        txtNumero.setText("(se asigna al grabar)");
+        txtNumero.setText("se asigna al grabar");
         txtFecha.setText(LocalDate.now().toString());
         txtCliente.setText("");
         txtNit.setText("");
@@ -478,7 +493,7 @@ public class FrmFactura extends javax.swing.JFrame {
         };
         for (Factura f : facturas) {
             modelo.addRow(new Object[]{
-                f.getId(), f.getNumeroFactura(), f.getFecha(), f.getClienteNombre(), f.getTotal()
+                f.getIdFactura(), f.getNumeroFactura(), f.getFecha(), f.getCliente().getNombre(), f.calcularTotal()
             });
         }
         tblFacturas.setModel(modelo);

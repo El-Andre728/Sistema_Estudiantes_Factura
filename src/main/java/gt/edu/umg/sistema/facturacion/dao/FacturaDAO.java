@@ -8,7 +8,7 @@ public interface FacturaDAO {
     void guardar(Factura factura);
 
     List<Factura> listar();
-
+    
     Factura buscarPorId(int id);
 
     void actualizar(Factura factura);
